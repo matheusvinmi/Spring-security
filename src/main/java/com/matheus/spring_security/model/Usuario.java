@@ -40,12 +40,13 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return usuarioSenha;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        //aqui eu posso definir qual o nome de usuario, pode ser tanto email, nome ou até nickName
+        return usuarioEmail;
     }
 
     @Override

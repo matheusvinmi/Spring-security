@@ -1,11 +1,16 @@
 package com.matheus.spring_security.service;
 
+import com.matheus.spring_security.config.TokenConfig;
+import com.matheus.spring_security.dto.request.LoginRequestDTO;
 import com.matheus.spring_security.dto.request.UsuarioRequestDTO;
+import com.matheus.spring_security.dto.response.LoginResponseDTO;
 import com.matheus.spring_security.dto.response.UsuarioResponseDTO;
 import com.matheus.spring_security.model.Usuario;
 import com.matheus.spring_security.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +20,22 @@ import java.util.stream.Collectors;
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final TokenConfig tokenConfig;
+
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+                          AuthenticationManager authenticationManager, TokenConfig tokenConfig){
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenConfig = tokenConfig;
+    }
+
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> listarTodosUsuario(){
@@ -39,7 +56,7 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setUsuarioNome(usuarioRequestDTO.usuarioNome());
         usuario.setUsuarioEmail(usuarioRequestDTO.usuarioEmail());
-        String senhaCriptografada = encoder.encode(usuarioRequestDTO.usuarioSenha());
+        String senhaCriptografada = passwordEncoder.encode(usuarioRequestDTO.usuarioSenha());
         usuario.setUsuarioSenha(senhaCriptografada);
         Usuario salvo = usuarioRepository.save(usuario);
         return toResponse(salvo);
@@ -51,7 +68,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Não tem nenhum usuario com esse ID para fazer a atualização"));
         usuario.setUsuarioNome(usuarioRequestDTO.usuarioNome());
         usuario.setUsuarioEmail(usuarioRequestDTO.usuarioEmail());
-        String senhaCriptografada = encoder.encode(usuarioRequestDTO.usuarioSenha());
+        String senhaCriptografada = passwordEncoder.encode(usuarioRequestDTO.usuarioSenha());
         usuario.setUsuarioSenha(senhaCriptografada);
         usuario.setUsuarioSenha(senhaCriptografada);
         Usuario salvo = usuarioRepository.save(usuario);
@@ -67,6 +84,16 @@ public class UsuarioService {
         }
     }
 
+    @Transactional
+    public LoginResponseDTO loginUsuario(LoginRequestDTO loginRequestDTO){
+        UsernamePasswordAuthenticationToken userAndPass = new UsernamePasswordAuthenticationToken(loginRequestDTO.usuarioEmail(), loginRequestDTO.usuarioSenha());
+        Authentication authentication = authenticationManager.authenticate(userAndPass);
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        String token = tokenConfig.generateToken(usuario);
+
+        return new LoginResponseDTO(usuario.getUsuarioNome(), usuario.getUsuarioEmail(), usuario.getUsuarioSenha(), token);
+    }
+
 
     public UsuarioResponseDTO toResponse(Usuario usuario){
         return new UsuarioResponseDTO(
@@ -74,6 +101,15 @@ public class UsuarioService {
                 usuario.getUsuarioNome(),
                 usuario.getUsuarioEmail(),
                 usuario.getUsuarioSenha()
+        );
+    }
+
+    public LoginResponseDTO toResponseLogin(Usuario login){
+        return new LoginResponseDTO(
+                login.getUsuarioNome(),
+                login.getUsername(),
+                login.getPassword(),
+                null
         );
     }
 

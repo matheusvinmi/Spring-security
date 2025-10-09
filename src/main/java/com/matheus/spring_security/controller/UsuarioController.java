@@ -1,8 +1,11 @@
 package com.matheus.spring_security.controller;
 
+import com.matheus.spring_security.dto.request.LoginRequestDTO;
 import com.matheus.spring_security.dto.request.UsuarioRequestDTO;
+import com.matheus.spring_security.dto.response.LoginResponseDTO;
 import com.matheus.spring_security.dto.response.UsuarioResponseDTO;
 import com.matheus.spring_security.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/auth")
 public class UsuarioController {
 
     @Autowired
@@ -22,26 +25,33 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPeloId(@PathVariable Long usuarioId){
+    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPeloId(@Valid @PathVariable Long usuarioId){
         return ResponseEntity.ok(usuarioService.buscarUsuarioPorId(usuarioId));
     }
 
-    @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@RequestBody UsuarioRequestDTO usuarioRequestDTO){
+    @PostMapping("/register")
+    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO){
         UsuarioResponseDTO usuarioResponseDTO = usuarioService.criarUsuario(usuarioRequestDTO);
         return ResponseEntity.ok(usuarioResponseDTO);
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@PathVariable Long usuarioId, @RequestBody UsuarioRequestDTO usuarioRequestDTO){
+    @PostMapping("atualizar/{id}")
+    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@Valid @PathVariable Long usuarioId, @RequestBody UsuarioRequestDTO usuarioRequestDTO){
         UsuarioResponseDTO usuarioResponseDTO = usuarioService.atualizarUsuario(usuarioId, usuarioRequestDTO);
         return ResponseEntity.ok(usuarioResponseDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("deletar/{id}")
     public ResponseEntity<Void> deletarUsuario(@PathVariable Long usuarioId){
         usuarioService.deletarUsuario(usuarioId);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO){
+        LoginResponseDTO loginResponseDTO = usuarioService.loginUsuario(loginRequestDTO);
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
 }
