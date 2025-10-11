@@ -35,6 +35,12 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioResponseDTO);
     }
 
+    @PostMapping("/register-admin")
+    public ResponseEntity<UsuarioResponseDTO> criarAdministrador(@Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO){
+        UsuarioResponseDTO usuarioResponseDTO = usuarioService.criarAdmin(usuarioRequestDTO);
+        return ResponseEntity.ok(usuarioResponseDTO);
+    }
+
     @PostMapping("atualizar/{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@Valid @PathVariable Long usuarioId, @RequestBody UsuarioRequestDTO usuarioRequestDTO){
         UsuarioResponseDTO usuarioResponseDTO = usuarioService.atualizarUsuario(usuarioId, usuarioRequestDTO);

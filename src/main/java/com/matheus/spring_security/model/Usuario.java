@@ -6,10 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,9 +36,15 @@ public class Usuario implements UserDetails {
     @Column(name = "senha_usuario", nullable = false)
     private String usuarioSenha;
 
+    @CollectionTable(name = "roles_usuario", joinColumns = @JoinColumn(name = "id_usuario"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Set<Role> roles = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return roles.stream().map(r -> new SimpleGrantedAuthority(r.name()))
+                .toList();
     }
 
     @Override
