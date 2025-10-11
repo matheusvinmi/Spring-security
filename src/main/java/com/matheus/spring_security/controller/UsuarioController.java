@@ -8,6 +8,7 @@ import com.matheus.spring_security.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios(){
         return ResponseEntity.ok(usuarioService.listarTodosUsuario());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPeloId(@Valid @PathVariable Long usuarioId){
         return ResponseEntity.ok(usuarioService.buscarUsuarioPorId(usuarioId));
     }
@@ -42,12 +45,14 @@ public class UsuarioController {
     }
 
     @PostMapping("atualizar/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@Valid @PathVariable Long usuarioId, @RequestBody UsuarioRequestDTO usuarioRequestDTO){
         UsuarioResponseDTO usuarioResponseDTO = usuarioService.atualizarUsuario(usuarioId, usuarioRequestDTO);
         return ResponseEntity.ok(usuarioResponseDTO);
     }
 
     @DeleteMapping("deletar/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Void> deletarUsuario(@PathVariable Long usuarioId){
         usuarioService.deletarUsuario(usuarioId);
         return ResponseEntity.noContent().build();
