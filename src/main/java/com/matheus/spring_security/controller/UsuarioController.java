@@ -27,9 +27,9 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPeloId(@Valid @PathVariable Long usuarioId){
-        return ResponseEntity.ok(usuarioService.buscarUsuarioPorId(usuarioId));
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPeloId(@Valid @PathVariable Long id){
+        return ResponseEntity.ok(usuarioService.buscarUsuarioPorId(id));
     }
 
     @PostMapping("/register")
@@ -39,22 +39,23 @@ public class UsuarioController {
     }
 
     @PostMapping("/register-admin")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<UsuarioResponseDTO> criarAdministrador(@Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO){
         UsuarioResponseDTO usuarioResponseDTO = usuarioService.criarAdmin(usuarioRequestDTO);
         return ResponseEntity.ok(usuarioResponseDTO);
     }
 
-    @PostMapping("atualizar/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@Valid @PathVariable Long usuarioId, @RequestBody UsuarioRequestDTO usuarioRequestDTO){
-        UsuarioResponseDTO usuarioResponseDTO = usuarioService.atualizarUsuario(usuarioId, usuarioRequestDTO);
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN') or #id == authentication.principal.id")
+    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@Valid @PathVariable Long id, @RequestBody UsuarioRequestDTO usuarioRequestDTO){
+        UsuarioResponseDTO usuarioResponseDTO = usuarioService.atualizarUsuario(id, usuarioRequestDTO);
         return ResponseEntity.ok(usuarioResponseDTO);
     }
 
-    @DeleteMapping("deletar/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable Long usuarioId){
-        usuarioService.deletarUsuario(usuarioId);
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN') or #id == authentication.principal.id")
+    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id){
+        usuarioService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
 
