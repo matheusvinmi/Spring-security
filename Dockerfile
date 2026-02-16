@@ -1,5 +1,4 @@
 FROM eclipse-temurin:17-jdk-alpine
-# FROM openjdk:17-jdk-alpine
 
 # Define o diretório de trabalho dentro do container
 WORKDIR /app
