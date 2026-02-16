@@ -105,7 +105,13 @@ public class UsuarioService {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         String token = tokenConfig.generateToken(usuario);
 
-        return new LoginResponseDTO(usuario.getUsuarioNome(), usuario.getUsuarioEmail(), usuario.getUsuarioSenha(), token, usuario.getRoles());
+        return new LoginResponseDTO(
+                usuario.getUsuarioId(),
+                usuario.getUsuarioNome(),
+                usuario.getUsuarioEmail(),
+                usuario.getUsuarioSenha(),
+                token,
+                usuario.getRoles());
     }
 
 
@@ -116,16 +122,6 @@ public class UsuarioService {
                 usuario.getUsuarioEmail(),
                 usuario.getUsuarioSenha(),
                 usuario.getRoles()
-        );
-    }
-
-    public LoginResponseDTO toResponseLogin(Usuario login){
-        return new LoginResponseDTO(
-                login.getUsuarioNome(),
-                login.getUsername(),
-                login.getPassword(),
-                null,
-                login.getRoles()
         );
     }
 

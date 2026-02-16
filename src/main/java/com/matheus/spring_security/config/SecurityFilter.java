@@ -13,6 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.rmi.ServerError;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +35,11 @@ public class SecurityFilter extends OncePerRequestFilter {
             if (optUser.isPresent()){
                 JWTUserData userData = optUser.get();
 
-                List<SimpleGrantedAuthority> authorities = userData.roles().stream()
-                        .map(SimpleGrantedAuthority::new).toList();
+                List<SimpleGrantedAuthority> authorities = Optional.ofNullable(userData.roles())
+                        .orElse(Collections.emptyList())
+                        .stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userData, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);

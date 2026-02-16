@@ -4,5 +4,5 @@ import com.matheus.spring_security.model.Role;
 
 import java.util.Set;
 
-public record LoginResponseDTO(String usuarioNome, String usuarioEmail, String usuarioSenha, String token, Set<Role> role) {
+public record LoginResponseDTO(Long usuarioId, String usuarioNome, String usuarioEmail, String usuarioSenha, String token, Set<Role> role) {
 }
